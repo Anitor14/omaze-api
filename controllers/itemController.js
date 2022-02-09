@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
-
-const Product = require("../models/product.model");
+const Project = require("../models/Project.model");
 const User = require("../models/user.model");
 
 const AppError = require("../utils/appError");
@@ -74,18 +73,10 @@ const addToImages = catchAsync(async (req, res, next) => {
   }
 });
 
-
-const createProduct = catchAsync(async (req, res, next) => {
+const createProject = catchAsync(async (req, res, next) => {
   const schema = Joi.object().keys({
     title: Joi.string().required(),
     description: Joi.string().required(),
-    collections: Joi.string(),
-    category: Joi.string(),
-    price: Joi.number().required(),
-    quantity: Joi.number().required(),
-    hasVariant: Joi.boolean().optional(),
-    color: Joi.string().optional(),
-    size: Joi.string().optional(),
   });
 
   const { error } = schema.validate(req.body);
@@ -102,145 +93,115 @@ const createProduct = catchAsync(async (req, res, next) => {
   try {
     const user = await User.findById(req.user);
 
-    const { title, description, collections, category, price, quantity } =
-      req.body;
-
-    const defaultCollection = Collections.find({ isDefault: true });
-    const defaultCategory = Category.find({ isDefault: true });
-
-    const newProduct = await Product.create({
+    const { title, description } = req.body;
+    const newProject = await Project.create({
       title: title,
       description: description,
-      collections: collections || defaultCollection._id,
-      category: category || defaultCategory._id,
-      price: price,
-      quantity: quantity,
       user: user._id,
     });
 
-    const initialPath = determineUploadPath("product");
+    const initialPath = determineUploadPath("project");
 
     const uploader = async (path) =>
-      await multiCloudinaryUpload(path, `${initialPath}/${newProduct._id}`);
+      await multiCloudinaryUpload(path, `${initialPath}/${newProject._id}`);
 
     const files = req.files;
     for (const file of files) {
       const { path } = file;
       const newPath = await uploader(path);
 
-      await updateImageToModel(Product, newProduct._id, "Product", newPath);
+      await updateImageToModel(Project, newProject._id, "project", newPath);
 
       fs.unlinkSync(path);
     }
 
-    if (!newProduct) {
+    if (!newProject) {
       return next(
         new AppError(
-          `Could not add product at this time, please contact administrator`,
+          `Could not create project at this time, please contact administrator`,
           StatusCodes.BAD_REQUEST
         )
       );
     }
 
     res.status(StatusCodes.CREATED).json({
-      message: "Product Created successfully",
+      message: "project Created successfully",
       status: "success",
-      product: newProduct,
+      product: newProject,
     });
   } catch (error) {
     return next(new AppError(`${error}`, StatusCodes.INTERNAL_SERVER_ERROR));
   }
 });
 
-const viewProducts = catchAsync(async (req, res, next) => {
-  const { product_id } = req.params;
+const viewProjects = catchAsync(async (req, res, next) => {
+  const { project_id } = req.params;
 
   try {
-    let products = null;
+    let projects = null;
 
-    if (product_id) {
-      products = await Product.findById(product_id)
-        .populate("collections")
-        .populate("category")
-        .populate("images");
+    if (project_id) {
+      projects = await Project.findById(project_id).populate("images");
     } else {
-      products = await Product.find()
-        .populate("collections")
-        .populate("category")
-        .populate("images");
+      projects = await Project.find().populate("images");
     }
 
-    if (!products) {
+    if (!projects) {
       return next(
         new AppError(
-          `Could not find product at this time, please contact administrator`,
+          `Could not find project at this time, please contact administrator`,
           StatusCodes.BAD_REQUEST
         )
       );
     }
 
     res.status(StatusCodes.OK).json({
-      message: "Product retrieved successfully",
+      message: "project retrieved successfully",
       status: "success",
-      products,
+      projects,
     });
   } catch (error) {
     return next(new AppError(`${error}`, StatusCodes.INTERNAL_SERVER_ERROR));
   }
 });
 
-const adminViewProducts = catchAsync(async (req, res, next) => {
-  const { product_id } = req.params;
+const adminViewProjects = catchAsync(async (req, res, next) => {
+  const { project_id } = req.params;
 
   try {
-    let products = null;
+    let projects = null;
 
-    if (product_id) {
-      products = await Product.findById(product_id)
-        .populate("collections")
-        .populate("category")
+    if (project_id) {
+      projects = await Project.findById(project_id)
         .populate("user")
         .populate("images");
     } else {
-      products = await Product.find()
-        .populate("collections")
-        .populate("category")
-        .populate("user")
-        .populate("images");
+      projects = await Project.find().populate("user").populate("images");
     }
 
-    if (!products) {
+    if (!projects) {
       return next(
         new AppError(
-          `Could not find product at this time, please contact administrator`,
+          `Could not find project at this time, please contact administrator`,
           StatusCodes.BAD_REQUEST
         )
       );
     }
 
     res.status(StatusCodes.OK).json({
-      message: "Product retrieved successfully",
+      message: "project retrieved successfully",
       status: "success",
-      products,
+      projects,
     });
   } catch (error) {
     return next(new AppError(`${error}`, StatusCodes.INTERNAL_SERVER_ERROR));
   }
 });
 
-
-const editProduct = catchAsync(async (req, res, next) => {
+const editProject = catchAsync(async (req, res, next) => {
   const schema = Joi.object().keys({
     title: Joi.string().required(),
     description: Joi.string().required(),
-    collections: Joi.string(),
-    category: Joi.string(),
-    hasVariant: Joi.boolean().required(),
-    variant: Joi.string(),
-    price: Joi.number().required(),
-    color: Joi.string(),
-    size: Joi.number(),
-    quantity: Joi.number().required(),
   });
 
   const { error } = schema.validate(req.body);
@@ -258,30 +219,14 @@ const editProduct = catchAsync(async (req, res, next) => {
     const {
       title,
       description,
-      collections,
-      category,
-      hasVariant,
-      variant,
-      price,
-      color,
-      size,
-      quantity,
     } = req.body;
-    const { product_id } = req.params;
+    const { project_id } = req.params;
 
-    const product = await Product.findOneAndUpdate(
-      { _id: product_id },
+    const product = await Project.findOneAndUpdate(
+      { _id: project_id },
       {
         title: title,
         description: description,
-        collections: collections,
-        category: category,
-        hasVariant: hasVariant,
-        variant: variant,
-        price: price,
-        color: color,
-        size: size,
-        quantity: quantity,
       },
       { new: true }
     );
@@ -289,14 +234,14 @@ const editProduct = catchAsync(async (req, res, next) => {
     if (!product) {
       return next(
         new AppError(
-          `Could not update product at this time.`,
+          `Could not update project at this time.`,
           StatusCodes.BAD_REQUEST
         )
       );
     }
 
     res.status(StatusCodes.OK).json({
-      message: "Product updated successfully",
+      message: "project updated successfully",
       status: "success",
       product,
     });
@@ -304,7 +249,6 @@ const editProduct = catchAsync(async (req, res, next) => {
     return next(new AppError(`${error}`, StatusCodes.INTERNAL_SERVER_ERROR));
   }
 });
-
 
 const deleteModel = catchAsync(async (req, res, next) => {
   const schema = Joi.object().keys({
@@ -393,12 +337,11 @@ const deleteAll = catchAsync(async (req, res, next) => {
 });
 
 module.exports = {
-  createProduct,
-  viewProducts,
-  adminViewProducts,
-  editProduct,
+  createProject,
+  viewProjects,
+  adminViewProjects,
+  editProject,
   deleteModel,
   deleteAll,
   addToImages,
-
 };

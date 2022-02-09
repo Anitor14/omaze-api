@@ -19,8 +19,8 @@ const globalErrorHandler = require("./controllers/errorController");
 
 const userRoutes = require("./routes/userRoutes");
 // const transactionRoutes = require("./routes/transactionRoutes");
-const contactRoutes = require("./routes/contactRoute");
-const checkoutRoutes = require("./routes/checkoutRoutes");
+// const contactRoutes = require("./routes/contactRoute");
+// const checkoutRoutes = require("./routes/checkoutRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 
 const app = express();
@@ -77,7 +77,7 @@ app.use((req, res, next) => {
 
 app.use("/api/v1/users", userRoutes);
 // app.use("/api/v1/transactions", transactionRoutes);
-app.use("/api/v1/contact", contactRoutes);
+// app.use("/api/v1/contact", contactRoutes);
 
 // app.use("/api/v1/checkout", checkoutRoutes);
 app.use("/api/v1/admin", adminRoutes);

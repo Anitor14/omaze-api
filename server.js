@@ -11,7 +11,8 @@ process.on("uncaughtException", (err) => {
 // dotenv.config({ path: ".env" });
 const app = require("./app");
 
-const dbConnect = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.gk4wf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+// const dbConnect = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.gk4wf.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`;
+const dbConnect = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASS}@cluster0.wxqdl.mongodb.net/myFirstDatabase?retryWrites=true&w=majority`
 
 // console.log("Connecting.... ", dbConnect)
 

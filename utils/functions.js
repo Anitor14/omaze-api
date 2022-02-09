@@ -51,8 +51,8 @@ const determineUploadPath = (name) => {
         case "category":
             path = "images/category";
             break;
-        case "product":
-            path = "images/products";
+        case "project":
+            path = "images/projects";
             break;
         case "collections":
             path = "images/collections";
