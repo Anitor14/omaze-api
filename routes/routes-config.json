@@ -1,0 +1,37 @@
+{
+    "products": {
+        "orders":
+        {
+            "main": [
+                "get user orders (user)", "get orders [transactions] (admin)", "approve order (admin)", "cancel order (user, admin)"
+            ],
+            "order_tracking": [
+                "update_location (admin)"
+            ]
+        },
+        "product management": {
+            "main": [
+                "add product", "edit product", "delete product", "view products"
+            ],
+            "categories": [
+                "add category", "edit category", "delete category", "view categories"
+            ],
+            "collections": [
+                "add collection", "edit collection", "delete collection", "view collections"
+            ]
+        }
+    },
+    "check_out": {
+        "main": [
+            "checkout order"
+        ]
+    },
+    "others": {
+        "main": [
+            "create banner", "edit banner", "delete banner", "view banners"
+        ],
+        "images": [
+            
+        ]
+    }
+}
