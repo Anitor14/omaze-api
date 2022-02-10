@@ -97,7 +97,7 @@ const createProject = catchAsync(async (req, res, next) => {
     const newProject = await Project.create({
       title: title,
       description: description,
-      user: user._id,
+      user: user._id, 
     });
 
     const initialPath = determineUploadPath("project");
