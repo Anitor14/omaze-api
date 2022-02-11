@@ -19,4 +19,4 @@ exports.multiCloudinaryUpload = (file, folder) => {
 			folder: folder,
 		})
 	})
-}
+} 
